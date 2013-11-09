@@ -53,6 +53,8 @@ module SVGGVS
 
         session.file.dup_with_only_last_target.save target.to_s
 
+        session.file.clear_targets!
+
         @individual_files << target
       end
 

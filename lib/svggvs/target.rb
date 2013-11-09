@@ -16,6 +16,14 @@ module SVGGVS
       css("g[inkscape|groupmode='layer']").each do |layer|
         if layers.include?(layer['inkscape:label'])
           layer['style'] = ''
+
+          current_parent = layer.parent
+
+          while current_parent && current_parent.name == "g"
+            current_parent['style'] = ''
+
+            current_parent = current_parent.parent
+          end
         else
           layer['style'] = 'display:none'
         end
@@ -44,7 +52,7 @@ module SVGGVS
               end
 
               if child.name == "image" && !!@replacements[label]
-                child['xlink:href'] = @replacements[label]
+                child['xlink:href'] = ::File.expand_path(@replacements[label])
               end
             end
 
@@ -54,16 +62,19 @@ module SVGGVS
       end
     end
 
+    # only uncloning text
     def unclone
       css('svg|use').each do |clone|
         if source = css(clone['xlink:href']).first
-          new_group = clone.add_next_sibling("<svg:g />").first
+          if source.name == 'flowRoot' || source.name == 'text'
+            new_group = clone.add_next_sibling("<svg:g />").first
 
-          clone.attributes.each do |key, attribute|
-            new_group[attribute.name] = attribute.value
+            clone.attributes.each do |key, attribute|
+              new_group[attribute.name] = attribute.value
+            end
+
+            new_group << source.dup
           end
-
-          new_group << source.dup
         end
 
         clone.remove

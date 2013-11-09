@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+require 'digest/md5'
+
+require_relative '../lib/svggvs'
+
+module SVGGVS
+  class Cli < Thor
+    class_option :cardfile, default: 'Cardfile'
+
+    desc "merged_file", "Write out a merged file"
+    def merged_file
+      context.write_merged_file
+    end
+
+    desc "svgs", "Write out individual SVG files"
+    def svgs
+      write_svgs
+    end
+
+    desc "pngs", "Write out individual PNG files"
+    def pngs
+      write_svgs
+      ensure_tmp
+
+      @exported_pngs = []
+
+      context.individual_files.each_with_index do |svg_file, index|
+        target = Pathname(context.session.png_files_path % index)
+        target.parent.mkpath
+
+        @exported_pngs << target
+
+        system %{inkscape --export-area-page --export-png "#{target.expand_path}" --export-width #{context.session.png_export_width} --export-background="#ffffffff" "#{svg_file.expand_path}"}
+      end
+    end
+
+    desc "pdf", "Create PDF of card images"
+    def pdf
+      pngs
+
+      trimmed_pngs = @exported_pngs.collect do |png|
+        tmp_target = tmp_path.join(Digest::MD5.hexdigest(png.to_s) + '.png')
+
+        system %{convert #{png} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
+
+        tmp_target
+      end
+
+      png_slices = trimmed_pngs.each_slice(9)
+
+      page_count = trimmed_pngs.length / 9
+
+      pages = png_slices.each_with_index.collect do |files, page_index|
+        tmp_pdf_target = tmp_path.join("page%05d.pdf" % page_index)
+
+        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
+
+        tmp_pdf_target
+      end
+
+      system "gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=#{context.session.pdf_target} -dBATCH #{pages.join(" ")}"
+    end
+
+    no_tasks do
+      def tmp_path
+        @tmp_path ||= Pathname(".tmp")
+      end
+
+      def ensure_tmp
+        tmp_path.rmtree if tmp_path.directory?
+        tmp_path.mkpath
+      end
+
+      def context
+        @context ||= SVGGVS::Context.load(options[:cardfile])
+      end
+
+      def write_svgs
+        context.write_individual_files
+      end
+    end
+  end
+end
+
+SVGGVS::Cli.start

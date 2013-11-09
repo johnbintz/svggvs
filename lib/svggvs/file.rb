@@ -52,6 +52,7 @@ module SVGGVS
       yield target_obj
 
       target_obj.replaced
+      target_obj.unclone
 
       target << target_obj.target
 

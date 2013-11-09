@@ -37,6 +37,10 @@ end
 
       # Any text with {% liquid_like_tags %} will have those tags replaced with the
       # values within the hash passed in.
+      # Additionally, you can label the following and have things replaced:
+      # * svg:flowRoot will replace the text in the svg:flowPara within
+      # * svg:text will replace the text in the first svg:tspan within
+      # * svg:image will replace the xlink:href of the tag, changing the image to load
       target.replacements = datum[:replacements]
     end
   end

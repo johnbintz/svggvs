@@ -34,10 +34,41 @@ module SVGGVS
               child.content = @replacements[match] || ''
             end
           else
+            if label = child['inkscape:label']
+              if flow_para = child.css('svg|flowPara').first
+                flow_para.content = @replacements[label] || ''
+              end
+
+              if span = child.css('svg|tspan').first
+                span.content = @replacements[label] || ''
+              end
+
+              if child.name == "image" && !!@replacements[label]
+                child['xlink:href'] = @replacements[label]
+              end
+            end
+
             replaced(child)
           end
         end
       end
     end
+
+    def unclone
+      css('svg|use').each do |clone|
+        if source = css(clone['xlink:href']).first
+          new_group = clone.add_next_sibling("<svg:g />").first
+
+          clone.attributes.each do |key, attribute|
+            new_group[attribute.name] = attribute.value
+          end
+
+          new_group << source.dup
+        end
+
+        clone.remove
+      end
+    end
   end
 end
+

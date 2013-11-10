@@ -51,10 +51,10 @@ You can also have a `.cardrc` file which is run before loading the `Cardfile`.
 
 Process your cards with `svggvs`:
 
-* `svggvs merged_file`: Create a big SVG file with al cards as layers
-* `svggvs svgs`: Write out individual SVG files
-* `svggvs pngs`: Write out PNG files after writing out the SVG files
-* `svggvs pdf`: Write out the merged PnP PDF file
+* `svggvs merged_file`: Create a big SVG file with all cards as layers. Fine for simple setups, but will create monster files!
+* `svggvs svgs`: Write out individual SVG files.
+* `svggvs pngs`: Write out PNG files after writing out the SVG files.
+* `svggvs pdf`: Write out the merged PnP PDF file.
 
 You can also pass in `--cardfile <new file>` to load a different cardfile, say for
 card backs.

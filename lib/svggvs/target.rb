@@ -43,16 +43,18 @@ module SVGGVS
             end
           else
             if label = child['inkscape:label']
-              if flow_para = child.css('svg|flowPara').first
-                flow_para.content = @replacements[label] || ''
-              end
+              if !!@replacements[label]
+                if flow_para = child.css('svg|flowPara').first
+                  flow_para.content = @replacements[label] || ''
+                end
 
-              if span = child.css('svg|tspan').first
-                span.content = @replacements[label] || ''
-              end
+                if span = child.css('svg|tspan').first
+                  span.content = @replacements[label] || ''
+                end
 
-              if child.name == "image" && !!@replacements[label]
-                child['xlink:href'] = ::File.expand_path(@replacements[label])
+                if child.name == "image" && !!@replacements[label]
+                  child['xlink:href'] = ::File.expand_path(@replacements[label])
+                end
               end
             end
 
@@ -74,10 +76,10 @@ module SVGGVS
             end
 
             new_group << source.dup
+
+            clone.remove
           end
         end
-
-        clone.remove
       end
     end
   end

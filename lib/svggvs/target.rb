@@ -69,7 +69,7 @@ module SVGGVS
       css('svg|use').each do |clone|
         if source = css(clone['xlink:href']).first
           if source.name == 'flowRoot' || source.name == 'text'
-            new_group = clone.add_next_sibling("<svg:g />").first
+            new_group = clone.add_next_sibling("<g />").first
 
             clone.attributes.each do |key, attribute|
               new_group[attribute.name] = attribute.value

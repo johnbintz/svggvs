@@ -78,6 +78,8 @@ module SVGGVS
         end
       end
 
+      Pathname(context.session.pdf_target).parent.mkpath
+
       system "gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=#{context.session.pdf_target} -dBATCH #{pages.join(" ")}"
     end
 

@@ -2,7 +2,7 @@ module SVGGVS
   class Session
     attr_accessor :svg_source, :svg_merged_target, :individual_files_path, :on_card_finished
     attr_accessor :png_files_path, :png_export_width, :pdf_card_size, :pdf_dpi
-    attr_accessor :pdf_target
+    attr_accessor :pdf_target, :card_back
 
     def initialize
       @index = 0

@@ -36,12 +36,18 @@ module SVGGVS
       end
     end
 
+    no_tasks do
+      def tmp_target_for(file)
+        tmp_path.join(Digest::MD5.hexdigest(file.to_s) + '.png')
+      end
+    end
+
     desc "pdf", "Create PDF of card images"
     def pdf
       pngs
 
       trimmed_pngs = @exported_pngs.collect do |png|
-        tmp_target = tmp_path.join(Digest::MD5.hexdigest(png.to_s) + '.png')
+        tmp_target = tmp_target_for(png)
 
         system %{convert #{png} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
 
@@ -58,6 +64,18 @@ module SVGGVS
         system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
 
         tmp_pdf_target
+      end
+
+      if context.session.card_back
+        tmp_target = tmp_target_for(context.session.card_back)
+        tmp_pdf_target = tmp_path.join("backs.pdf")
+
+        system %{convert #{context.session.card_back} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
+        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{Array.new(9, tmp_target).join(' ')} #{tmp_pdf_target}}
+
+        pages.length.times do |page|
+          pages << tmp_pdf_target
+        end
       end
 
       system "gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=#{context.session.pdf_target} -dBATCH #{pages.join(" ")}"

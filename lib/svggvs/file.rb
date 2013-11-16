@@ -77,7 +77,16 @@ module SVGGVS
     end
 
     def save(file)
-      ::File.open(file, 'w') { |fh| fh.print doc.to_xml }
+      for_save_doc = doc.dup
+      for_save_doc.css('g[inkscape|label]').each do |group|
+        if (group[:style] || '').include?('display:none')
+          if !(group['inkscape:label'] || '').include?('(protect)')
+            group.remove
+          end
+        end
+      end
+
+      ::File.open(file, 'w') { |fh| fh.print for_save_doc.to_xml }
     end
   end
 end

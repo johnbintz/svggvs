@@ -1,6 +1,18 @@
 # Process Inkscape files and create sets of cards for board games
 
-Not much in the way of docs yet. You'll need `inkscape`, `convert`, `montage`, and `gs` in your `PATH`.
+You'll need `inkscape`, `convert`, `montage`, and `gs` in your `PATH`.
+
+## Initialize a starter project
+
+Install the gem globally with `gem install svggvs` and then run `svggvs install <project>` where `project`
+is the name of the directory to place the skeleton project files. You'll get a few files in there:
+
+* `template.svg`, an Inkscape template that shoows how to do the basic SVGGVS template setup
+* `Cardfile`, the file SVGGVS uses to define each card for printing
+* `Gemfile`, in case you need additional gems. It has SVGGVS added already, but you may also want remote
+  data gems like `google_drive`, for instance.
+
+## How it works
 
 Create a `Cardfile` in your working directory. It should look
 something like this:
@@ -21,10 +33,6 @@ something like this:
 end
 
 @session.process do
-  require 'google_drive'
-  require 'virtus'
-  require 'active_support/inflector'
-
   require './card_definitions.rb'
 
   CardDefinitions.processed.each do |card|

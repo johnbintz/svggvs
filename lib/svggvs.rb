@@ -1,7 +1,7 @@
-require 'svggvs/file'
-require 'svggvs/target'
-require 'svggvs/context'
-require 'svggvs/session'
+require_relative './svggvs/file'
+require_relative './svggvs/target'
+require_relative './svggvs/context'
+require_relative './svggvs/session'
 
 module SVGGVS
 end

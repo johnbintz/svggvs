@@ -25,7 +25,11 @@ module SVGGVS
             current_parent = current_parent.parent
           end
         else
-          layer['style'] = 'display:none'
+          layer['style'] = if layer['inkscape:label'].include?('(visible)')
+                             ''
+                           else
+                             'display:none'
+                           end
         end
       end
     end

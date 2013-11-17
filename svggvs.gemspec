@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Svggvs::VERSION
   gem.authors       = ["John Bintz"]
   gem.email         = ["john@coswellproductions.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Generate sets of card game cards using Inkscape templates and Ruby}
+  gem.summary       = %q{Generate sets of card game cards using Inkscape templates and Ruby}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)

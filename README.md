@@ -14,6 +14,20 @@ is the name of the directory to place the skeleton project files. You'll get a f
 
 ## How it works
 
+Create an Inkscape SVG file in your project directory. Make sure it has a Source and a Target layer.
+Your card template is made up of sublayers in the Source layer. These layers are copied to the Target layer
+upon processing. The names of the layers are what you refer to in the `#active_layers` method in your `Cardfile`.
+By default, layers are hidden, and hidden layers are deleted after copying to the Target layer,
+unless they have the following names:
+
+* (visible): The layer is always visible, regardless if it's specified in `#active_layers`
+* (protect): The layer will not be deleted if it is hidden. Good for clone sources.
+
+Hiding/showing layers is the way that you make certain card elements appear/disappear on
+different types of cards with with different properties. You can also replace the text in
+text boxes (both standard and flowroot boxes) by giving those boxes a distinct label (under Object Properties)
+and feeding in a hash of label/text pairs into the `#replacements` method in the `Cardfile`.
+
 Create a `Cardfile` in your working directory. It should look
 something like this:
 

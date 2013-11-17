@@ -5,7 +5,7 @@ require 'svggvs/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "svggvs"
-  gem.version       = Svggvs::VERSION
+  gem.version       = SVGGVS::VERSION
   gem.authors       = ["John Bintz"]
   gem.email         = ["john@coswellproductions.com"]
   gem.description   = %q{Generate sets of card game cards using Inkscape templates and Ruby}
@@ -19,4 +19,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'nokogiri'
   gem.add_dependency 'thor'
+  gem.add_dependency 'parallel'
 end

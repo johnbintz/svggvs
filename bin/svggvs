@@ -2,6 +2,7 @@
 
 require 'thor'
 require 'digest/md5'
+require 'parallel'
 
 require_relative '../lib/svggvs'
 
@@ -35,15 +36,13 @@ module SVGGVS
       write_svgs
       ensure_tmp
 
-      @exported_pngs = []
-
-      context.individual_files.each_with_index do |svg_file, index|
+      @exported_pngs = Parallel.map(context.individual_files.each_with_index) do |svg_file, index|
         target = Pathname(context.session.png_files_path % index)
         target.parent.mkpath
 
-        @exported_pngs << target
-
         system %{inkscape --export-area-page --export-png "#{target.expand_path}" --export-width #{context.session.png_export_width} --export-background="#ffffffff" "#{svg_file.expand_path}"}
+
+        target
       end
     end
 
@@ -51,7 +50,7 @@ module SVGGVS
     def pdf
       pngs
 
-      trimmed_pngs = @exported_pngs.collect do |png|
+      trimmed_pngs = Parallel.map(@exported_pngs) do |png|
         tmp_target = tmp_target_for(png)
 
         system %{convert #{png} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
@@ -66,7 +65,7 @@ module SVGGVS
       placeholder = tmp_target_for("placeholder.png")
       system %{convert -size #{context.session.pdf_card_size} xc:white #{placeholder}}
 
-      pages = png_slices.each_with_index.collect do |files, page_index|
+      pages = Parallel.map(png_slices.each_with_index) do |files, page_index|
         tmp_pdf_target = tmp_path.join("page%05d.pdf" % page_index)
 
         files += Array.new(9 - files.length, placeholder)

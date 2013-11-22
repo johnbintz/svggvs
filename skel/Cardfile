@@ -1,37 +1,9 @@
 @session.configure do |c|
-  c.svg_source = "template.svg"
-  c.svg_merged_target = "merged-template.svg"
+  # manipulate the data after reading from the spreadsheet
+  # c.post_read_data = proc { |data|
+  #  data[:replacements]['Superpower Text'] << '!!'
+  # }
 
-  c.png_export_width = 825
-
-  c.pdf_dpi = 300
-  c.pdf_card_size = "750x1050"
-
-  c.individual_files_path = "svgout/output_%03d.svg"
-
-  c.png_files_path = "pngout-svggvs/output_%03d.png"
-
-  c.pdf_target = "pnp/game.pdf"
+  c.data_source = "data.ods"
 end
-
-card_data = [
-  {
-    active_layers: [ 'Action', 'Puppy', 'Name', 'Background' ],
-    replacements: { 'Name' => 'Woofie', 'Action' => 'Bark at the person who is ringing the doorbell.' }
-  },
-  {
-    active_layers: [ 'Action', 'Kitten', 'Name', 'Background' ],
-    replacements: { 'Name' => 'Hisshead', 'Action' => "Demand food by clawing at your owner's lap." }
-  },
-]
-
-@session.process do
-  card_data.each do |card|
-    @session.with_new_target do |target|
-      target.active_layers = card[:active_layers]
-      target.replacements = card[:replacements]
-    end
-  end
-end
-
 

@@ -20,4 +20,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'nokogiri'
   gem.add_dependency 'thor'
   gem.add_dependency 'parallel'
+  gem.add_dependency 'roo'
+  gem.add_dependency 'activesupport'
 end

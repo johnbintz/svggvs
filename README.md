@@ -8,7 +8,8 @@ Install the gem globally with `gem install svggvs` and then run `svggvs install 
 is the name of the directory to place the skeleton project files. You'll get a few files in there:
 
 * `template.svg`, an Inkscape template that shoows how to do the basic SVGGVS template setup
-* `Cardfile`, the file SVGGVS uses to define each card for printing
+* `data.ods`, a LibreOffice spreadsheet that defines the card data and project settings
+* `Cardfile`, the file SVGGVS uses to find the data file and optionally process the spreadsheet data after-the-fact
 * `Gemfile`, in case you need additional gems. It has SVGGVS added already, but you may also want remote
   data gems like `google_drive`, for instance.
 
@@ -16,7 +17,7 @@ is the name of the directory to place the skeleton project files. You'll get a f
 
 Create an Inkscape SVG file in your project directory. Make sure it has a Source and a Target layer.
 Your card template is made up of sublayers in the Source layer. These layers are copied to the Target layer
-upon processing. The names of the layers are what you refer to in the `#active_layers` method in your `Cardfile`.
+upon processing.
 By default, layers are hidden, and hidden layers are deleted after copying to the Target layer,
 unless they have the following names:
 
@@ -25,49 +26,54 @@ unless they have the following names:
 
 Hiding/showing layers is the way that you make certain card elements appear/disappear on
 different types of cards with with different properties. You can also replace the text in
-text boxes (both standard and flowroot boxes) by giving those boxes a distinct label (under Object Properties)
-and feeding in a hash of label/text pairs into the `#replacements` method in the `Cardfile`.
+text boxes (both standard and flowroot boxes) by giving those boxes a distinct label (under Object Properties).
 
-Create a `Cardfile` in your working directory. It should look
-something like this:
+Create a spreadsheet in the same directory, or on Google Drive. This project uses the Roo gem
+to read spreadsheets, so as long as Roo can read it, you're good to do.
+
+Give the sheets names so that SVGGVS knows what to do with them:
+
+* Put "Card Data" somewhere in the name for SVGGVS to use it as a data source
+* Name it "SVGGVS Settings" to define your project's settings.
+
+Under SVGGVS settings, you can currently set the following, as a series of two-column rows:
+
+* Card Size: Right now, only one option: Poker
+* Target: Right now, only one option: The Game Crafter
+* SVG Source: The SVG template file
+* Individual Files Path: Where final SVG files go
+* PNG Files Path: Where rendered PNG files go
+* PDF Target: Where the print-n-play PDF goes
+
+The following can be manually specified if you don't provide Card Size and Target:
+
+* PNG Export Width: The width of the exported card from Inkscape
+* PDF Card Size: The size a card is cropped down to before being placed on the PnP PDF
+* PDF DPI: The DPI of the PDF file
+
+The following Card Size and Target settings set these to the following:
+
+* The Game Crafter
+  * Poker
+    * PNG Export Width: 825
+    * PDF Card Size: 750x1050
+    * PDF DPI: 300
+
+Create a `Cardfile` in your working directory. It should look something like this:
 
 ``` ruby
 @session.configure do |c|
-  c.svg_source = "template/template.svg"
-  c.svg_merged_target = "template/output.svg"
+  # manipulate the data after reading from the spreadsheet
+  # c.post_read_data = proc { |data|
+  #  data[:replacements]['Superpower Text'] << '!!'
+  # }
 
-  c.png_export_width = 825
-  c.pdf_card_size = "750x1050"
-  c.pdf_dpi = 300
-
-  c.individual_files_path = "template/output/card_%02d.svg"
-  c.png_files_path = "template/png/card_%02d.png"
-
-  c.pdf_target = "merged.pdf"
-end
-
-@session.process do
-  require './card_definitions.rb'
-
-  CardDefinitions.processed.each do |card|
-    @session.with_new_target do |target|
-      datum = card.to_svggvs
-
-      # #active_layers indicates what sublayers within the "Source" layer of
-      # the Inkscape document should be toggled as visible. All others are hidden.
-      target.active_layers = datum[:active]
-
-      # Any text with {% liquid_like_tags %} will have those tags replaced with the
-      # values within the hash passed in.
-      # Additionally, you can label the following and have things replaced:
-      # * svg:flowRoot will replace the text in the svg:flowPara within
-      # * svg:text will replace the text in the first svg:tspan within
-      # * svg:image will replace the xlink:href of the tag, changing the image to load
-      target.replacements = datum[:replacements]
-    end
-  end
+  c.data_source = "data.ods"
 end
 ```
+
+All of the settings that could be set in your spreadsheet can also be set here. See
+`SVGGVS::Session` for more details.
 
 You can also have a `.cardrc` file which is run before loading the `Cardfile`.
 

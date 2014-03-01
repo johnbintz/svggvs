@@ -46,6 +46,8 @@ module SVGGVS
       end
     end
 
+    CARDS_PER_PAGE = 9
+
     desc "pdf", "Create PDF of card images"
     def pdf
       pngs
@@ -58,19 +60,23 @@ module SVGGVS
         tmp_target
       end
 
-      png_slices = trimmed_pngs.each_slice(9)
+      png_slices = trimmed_pngs.each_slice(CARDS_PER_PAGE)
 
-      page_count = trimmed_pngs.length / 9
+      page_count = trimmed_pngs.length / CARDS_PER_PAGE
 
       placeholder = tmp_target_for("placeholder.png")
       system %{convert -size #{context.session.pdf_card_size} xc:white #{placeholder}}
 
+      pdf_obj = SVGGVS::PDF.new(card_size: context.session.pdf_card_size)
+
       pages = Parallel.map(png_slices.each_with_index) do |files, page_index|
+        tmp_pdf_png_target = tmp_path.join("page%05d.pdf" % page_index)
         tmp_pdf_target = tmp_path.join("page%05d.pdf" % page_index)
 
         files += Array.new(9 - files.length, placeholder)
 
-        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
+        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_png_target}}
+        system %{convert -density #{context.session.pdf_dpi} #{tmp_pdf_png_target} -bordercolor white -border #{SVGGVS::PDF.border_size} #{pdf_obj.generate_crop_mark_draws.join(' ')} #{tmp_pdf_target}}.tap { |o| p o }
 
         tmp_pdf_target
       end

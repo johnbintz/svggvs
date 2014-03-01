@@ -22,4 +22,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'parallel'
   gem.add_dependency 'roo'
   gem.add_dependency 'activesupport'
+
+  gem.add_development_dependency 'rspec'
 end

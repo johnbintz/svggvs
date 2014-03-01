@@ -24,9 +24,9 @@ module SVGGVS
       settings
     end
 
-    def each_card
+    def each_card(card_sheet_identifier)
       doc.each_with_pagename do |name, sheet|
-        if name['Card Data']
+        if name[card_sheet_identifier]
           headers = sheet.row(1)
 
           (sheet.first_row + 1).upto(sheet.last_row) do |index|

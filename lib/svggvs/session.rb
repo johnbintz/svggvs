@@ -3,9 +3,11 @@ module SVGGVS
     attr_accessor :svg_source, :svg_merged_target, :individual_files_path, :on_card_finished
     attr_accessor :png_files_path, :png_export_width, :pdf_card_size, :pdf_dpi
     attr_accessor :pdf_target, :card_back, :card_size, :target, :post_read_data
+    attr_accessor :card_sheet_identifier
 
     def initialize
       @index = 0
+      @card_sheet_identifier = "Card Data"
     end
 
     def configure
@@ -58,7 +60,7 @@ module SVGGVS
       settings_from_hash(data_source.settings)
 
       @process = proc do
-        data_source.each_card do |card|
+        data_source.each_card(card_sheet_identifier) do |card|
           if !!@post_read_data
             @post_read_data.call(card)
           end

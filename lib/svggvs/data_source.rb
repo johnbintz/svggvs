@@ -2,12 +2,12 @@ require 'roo'
 
 module SVGGVS
   class DataSource
-    def initialize(file)
-      @file = file
+    def initialize(file, options = {})
+      @file, @options = [ file, options ].flatten.compact
     end
 
     def doc
-      @doc ||= Roo::Spreadsheet.open(@file)
+      @doc ||= Roo::Spreadsheet.open(@file, @options)
     end
 
     def settings

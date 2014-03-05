@@ -1,6 +1,12 @@
 # Process Inkscape files and create sets of cards for board games
 
-You'll need `inkscape`, `convert`, `montage`, and `gs` in your `PATH`.
+You'll need `inkscape`, `convert`, `montage`, and `gs` in your `PATH`. After installing the
+gem, run `svggvs prereqs` to see what you need installed and, potentially, how to install it.
+
+### Using Inkscape in /Applications on Mac OS X
+
+If you've installed Inkscape on Mac OS X and want to use that version instead of one from Homebrew,
+you'll need to follow these directions for setting up a shell alias: http://wiki.inkscape.org/wiki/index.php/MacOS_X#Inkscape_command_line
 
 ## Initialize a starter project
 

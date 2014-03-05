@@ -16,6 +16,39 @@ module SVGGVS
 
     class_option :cardfile, default: 'Cardfile'
 
+    PREREQ_MESSAGES = {
+      'inkscape' => (<<-MSG),
+sudo apt-get install inkscape or, on Mac OS X, download from http://www.inkscape.org/ and follow
+the instructions to set up a shell alias:
+
+http://wiki.inkscape.org/wiki/index.php/MacOS_X#Inkscape_command_line
+MSG
+      'gs' => "sudo apt-get install ghostscript or brew install ghostscript",
+      'convert' => "sudo apt-get install imagemagick or brew install imagemagick",
+      'montage' => "sudo apt-get install imagemagick or brew install imagemagick"
+    }.freeze
+
+    desc "prereqs", "Check your system for necessary pre-requisites"
+    def prereqs
+      [ 'inkscape -v', 'gs -v', 'montage -version', 'convert -version' ].each do |command|
+        name = command.split(' ').first
+        puts "Checking #{name}..."
+
+        begin
+          output = %x{#{command}}
+
+          if $?.exitstatus != 0
+            puts "Problem running #{name}! Output below:"
+            puts output
+          end
+        rescue Errno::ENOENT
+          puts "#{name} not installed! To install:"
+
+          puts PREREQ_MESSAGES[name]
+        end
+      end
+    end
+
     desc "install [ dir ]", "Install a Cardfile and sample template"
     def install(dir = '.')
       directory '.', dir

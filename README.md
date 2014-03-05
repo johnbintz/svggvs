@@ -68,6 +68,12 @@ Create a `Cardfile` in your working directory. It should look something like thi
   #  data[:replacements]['Superpower Text'] << '!!'
   # }
 
+  # only sheets with this in the title will be read for card data
+  # c.card_sheet_identifier = "Card Data"
+
+  # prepend this PDF to the outputted PDF (useful for game rules)
+  # c.prepend_pdf = "rules.pdf"
+
   c.data_source = "data.ods"
 end
 ```

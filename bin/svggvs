@@ -52,6 +52,10 @@ MSG
     desc "install [ dir ]", "Install a Cardfile and sample template"
     def install(dir = '.')
       directory '.', dir
+
+      Dir.chdir dir do
+        system %{bundle install}
+      end
     end
 
     desc "merged_file", "Write out a merged file"

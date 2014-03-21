@@ -32,6 +32,18 @@ module SVGGVS
                            end
         end
       end
+
+      loop do
+        any_changed = false
+        css("g[inkscape|groupmode='layer']").each do |layer|
+          if layer['inkscape:label'].include?('(child visible)') && layer['style'] != '' && layer.parent['style'] == ''
+            layer['style'] = ''
+
+            any_changed = true
+          end
+        end
+        break if !any_changed
+      end
     end
 
     def replacements=(replacements)

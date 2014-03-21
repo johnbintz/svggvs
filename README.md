@@ -29,6 +29,8 @@ unless they have the following names:
 
 * (visible): The layer is always visible, regardless if it's specified in `#active_layers`
 * (protect): The layer will not be deleted if it is hidden. Good for clone sources.
+* (child visible): The layer will be visible if its parent layer is also made visible. Good if you
+                   break artwork up into multiple layers (inks, colors, shading, etc.)
 
 Hiding/showing layers is the way that you make certain card elements appear/disappear on
 different types of cards with with different properties. You can also replace the text in

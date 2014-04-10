@@ -66,6 +66,7 @@ module SVGGVS
           end
 
           with_new_target do |target|
+            target.inject!
             target.active_layers = card[:active_layers]
             target.replacements = card[:replacements]
           end

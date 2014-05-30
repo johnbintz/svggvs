@@ -32,7 +32,7 @@ unless they have the following names:
 * (child visible): The layer will be visible if its parent layer is also made visible. Good if you
                    break artwork up into multiple layers (inks, colors, shading, etc.)
 * (inject filename.svg): Include all the layers of another SVG file as child layers of this layer.
-                         Does not copy patterns/gradients yet!
+                         Copies some elements from `<defs>` from the injected file!
 
 Hiding/showing layers is the way that you make certain card elements appear/disappear on
 different types of cards with with different properties. You can also replace the text in

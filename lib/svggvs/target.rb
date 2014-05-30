@@ -16,11 +16,17 @@ module SVGGVS
       @injected_sources ||= {}
     end
 
+    def injected_defs
+      @injected_defs ||= {}
+    end
+
     def inject!
       css("g[inkscape|groupmode='layer']").each do |layer|
         if filename = layer['inkscape:label'][/inject (.*\.svg)/, 1]
           injected_sources[filename] ||= begin
                                             data = Nokogiri::XML(::File.read(filename))
+
+                                            injected_defs[filename] = data.css("svg > defs")
 
                                             data.css("svg > g[inkscape|groupmode='layer']")
                                           end

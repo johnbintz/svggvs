@@ -29,11 +29,27 @@ module SVGGVS
       @target ||= doc.at_css('g[inkscape|label="Target"]')
     end
 
+    def defs
+      @defs ||= doc.at_css('defs')
+    end
+
+    def original_defs
+      @original_defs ||= defs.dup
+    end
+
+    def reset_defs!
+      defs.children.each(&:remove)
+
+      defs << original_defs.children
+    end
+
     def doc
       return @doc if @doc
 
       @doc = Nokogiri::XML(::File.read(@path))
       clear_targets!
+
+      original_defs
 
       @doc
     end
@@ -49,12 +65,18 @@ module SVGGVS
 
       target_obj = Target.new(new_target)
 
+      reset_defs!
+
       yield target_obj
 
       target_obj.replaced
       target_obj.unclone
 
       target << target_obj.target
+
+      target_obj.injected_defs.values.each do |v|
+        defs << v
+      end
 
       @instance += 1
     end

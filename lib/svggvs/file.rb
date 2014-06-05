@@ -34,13 +34,13 @@ module SVGGVS
     end
 
     def original_defs
-      @original_defs ||= defs.dup
+      @original_defs ||= defs.children.collect(&:to_xml).join
     end
 
     def reset_defs!
       defs.children.each(&:remove)
 
-      defs << original_defs.children
+      defs << original_defs
     end
 
     def doc

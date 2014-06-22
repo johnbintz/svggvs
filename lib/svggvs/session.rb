@@ -74,6 +74,10 @@ module SVGGVS
       end
     end
 
+    def pdf_class
+      @pdf_class ||= ("SVGGVS::Page::Letter::" + @card_size.spunderscore.camelize).constantize
+    end
+
     EXPORT_DEFAULTS = {
       :poker => {
         :the_game_crafter => {
@@ -81,7 +85,21 @@ module SVGGVS
           :pdf_dpi => 300,
           :png_export_width => 825
         }
-      }
+      },
+      :small_square_tile => {
+        :the_game_crafter => {
+          :pdf_card_size => '675x675',
+          :pdf_dpi => 300,
+          :png_export_width => 600
+        }
+      },
+      :square_shard => {
+        :the_game_crafter => {
+          :pdf_card_size => '300x300',
+          :pdf_dpi => 300,
+          :png_export_width => 225
+        }
+      },
     }.freeze
   end
 end

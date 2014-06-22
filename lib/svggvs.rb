@@ -3,7 +3,7 @@ require_relative './svggvs/target'
 require_relative './svggvs/context'
 require_relative './svggvs/session'
 require_relative './svggvs/data_source'
-require_relative './svggvs/pdf'
+require_relative './svggvs/page/base'
 
 module SVGGVS
 end

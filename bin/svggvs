@@ -83,11 +83,11 @@ MSG
       end
     end
 
-    CARDS_PER_PAGE = 9
-
     desc "pdf", "Create PDF of card images"
     def pdf
       pngs
+
+      pdf_obj = context.session.pdf_class.new(card_size: context.session.pdf_card_size)
 
       trimmed_pngs = Parallel.map(@exported_pngs) do |png|
         tmp_target = tmp_target_for(png)
@@ -97,23 +97,19 @@ MSG
         tmp_target
       end
 
-      png_slices = trimmed_pngs.each_slice(CARDS_PER_PAGE)
+      png_slices = trimmed_pngs.each_slice(pdf_obj.cards_per_page)
 
-      page_count = trimmed_pngs.length / CARDS_PER_PAGE
+      page_count = trimmed_pngs.length / pdf_obj.cards_per_page
 
       placeholder = tmp_target_for("placeholder.png")
       system %{convert -size #{context.session.pdf_card_size} xc:white #{placeholder}}
 
-      pdf_obj = SVGGVS::PDF.new(card_size: context.session.pdf_card_size)
-
       pages = Parallel.map(png_slices.each_with_index) do |files, page_index|
-        tmp_pdf_png_target = tmp_path.join("page%05d.pdf" % page_index)
         tmp_pdf_target = tmp_path.join("page%05d.pdf" % page_index)
 
-        files += Array.new(9 - files.length, placeholder)
+        files += Array.new(pdf_obj.cards_per_page - files.length, placeholder)
 
-        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_png_target}}
-        system %{convert -density #{context.session.pdf_dpi} #{tmp_pdf_png_target} -bordercolor white -border #{SVGGVS::PDF.border_size} #{pdf_obj.generate_crop_mark_draws.join(' ')} #{tmp_pdf_target}}.tap { |o| p o }
+        system %{montage -density #{context.session.pdf_dpi} -tile #{pdf_obj.montage_tiling} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
 
         tmp_pdf_target
       end
@@ -123,7 +119,7 @@ MSG
         tmp_pdf_target = tmp_path.join("backs.pdf")
 
         system %{convert #{context.session.card_back} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
-        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{Array.new(9, tmp_target).join(' ')} #{tmp_pdf_target}}
+        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{Array.new(pdf_obj.cards_per_page, tmp_target).join(' ')} #{tmp_pdf_target}}
 
         pages.length.times do |page|
           pages << tmp_pdf_target

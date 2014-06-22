@@ -68,6 +68,14 @@ The following Card Size and Target settings set these to the following:
     * PNG Export Width: 825
     * PDF Card Size: 750x1050
     * PDF DPI: 300
+  * Small Square Tile
+    * PNG Export Width: 600
+    * PDF Card Size: 675x675
+    * PDF DPI: 300
+  * Square Shard
+    * PNG Export Width: 225
+    * PDF Card Size: 300x300
+    * PDF DPI: 300
 
 Create a `Cardfile` in your working directory. It should look something like this:
 

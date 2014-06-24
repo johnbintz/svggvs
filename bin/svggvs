@@ -101,12 +101,12 @@ MSG
     def pdf
       pngs
 
-      pdf_obj = context.session.pdf_class.new(card_size: context.session.pdf_card_size)
+      pdf_obj = session.pdf_class.new(card_size: session.pdf_card_size)
 
       trimmed_pngs = Parallel.map(@exported_pngs) do |png|
         tmp_target = tmp_target_for(png)
 
-        system %{convert #{png} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
+        system %{convert #{png} -gravity Center -crop #{session.pdf_card_size}+0+0 +repage #{tmp_target}}
 
         tmp_target
       end
@@ -116,37 +116,37 @@ MSG
       page_count = trimmed_pngs.length / pdf_obj.cards_per_page
 
       placeholder = tmp_target_for("placeholder.png")
-      system %{convert -size #{context.session.pdf_card_size} xc:white #{placeholder}}
+      system %{convert -size #{session.pdf_card_size} xc:white #{placeholder}}
 
       pages = Parallel.map(png_slices.each_with_index) do |files, page_index|
         tmp_pdf_target = tmp_path.join("page%05d.pdf" % page_index)
 
         files += Array.new(pdf_obj.cards_per_page - files.length, placeholder)
 
-        system %{montage -density #{context.session.pdf_dpi} -tile #{pdf_obj.montage_tiling} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
+        system %{montage -density #{session.pdf_dpi} -tile #{pdf_obj.montage_tiling} -geometry +0+0 #{files.join(' ')} #{tmp_pdf_target}}
 
         tmp_pdf_target
       end
 
-      if context.session.card_back
-        tmp_target = tmp_target_for(context.session.card_back)
+      if session.card_back
+        tmp_target = tmp_target_for(session.card_back)
         tmp_pdf_target = tmp_path.join("backs.pdf")
 
-        system %{convert #{context.session.card_back} -gravity Center -crop #{context.session.pdf_card_size}+0+0 +repage #{tmp_target}}
-        system %{montage -density #{context.session.pdf_dpi} -geometry +0+0 #{Array.new(pdf_obj.cards_per_page, tmp_target).join(' ')} #{tmp_pdf_target}}
+        system %{convert #{session.card_back} -gravity Center -crop #{session.pdf_card_size}+0+0 +repage #{tmp_target}}
+        system %{montage -density #{session.pdf_dpi} -geometry +0+0 #{Array.new(pdf_obj.cards_per_page, tmp_target).join(' ')} #{tmp_pdf_target}}
 
         pages.length.times do |page|
           pages << tmp_pdf_target
         end
       end
 
-      Pathname(context.session.pdf_target).parent.mkpath
+      Pathname(session.pdf_target).parent.mkpath
 
-      if context.session.prepend_pdf
-        pages.unshift context.session.prepend_pdf
+      if session.prepend_pdf
+        pages.unshift session.prepend_pdf
       end
 
-      system "gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=#{context.session.pdf_target} -dBATCH #{pages.join(" ")}"
+      system "gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=#{session.pdf_target} -dBATCH #{pages.join(" ")}"
     end
 
     no_tasks do

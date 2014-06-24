@@ -74,10 +74,24 @@ MSG
       ensure_tmp
 
       @exported_pngs = Parallel.map(context.individual_files.each_with_index) do |svg_file, index|
-        target = Pathname(context.session.png_files_path % index)
+        target = Pathname(session.png_files_path % index)
         target.parent.mkpath
 
-        system %{inkscape --export-area-page --export-png "#{target.expand_path}" --export-width #{context.session.png_export_width} --export-background="#ffffffff" "#{svg_file.expand_path}"}
+        command = %{inkscape --export-area-page --export-png "#{target.expand_path}"  --export-background="#ffffffff" }
+
+        case session.orientation
+        when :portrait
+          command += %{--export-width #{session.png_export_width}}
+        when :landscape
+          command += %{--export-height #{session.png_export_width}}
+        end
+        command += %{ "#{svg_file.expand_path}"}
+
+        system command
+
+        if session.orientation == :landscape
+          system %{convert -verbose "#{target.expand_path}" -rotate 270 "#{target.expand_path}"}
+        end
 
         target
       end
@@ -155,6 +169,10 @@ MSG
 
       def write_svgs
         context.write_individual_files
+      end
+
+      def session
+        context.session
       end
     end
   end

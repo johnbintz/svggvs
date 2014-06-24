@@ -92,6 +92,10 @@ Create a `Cardfile` in your working directory. It should look something like thi
   # prepend this PDF to the outputted PDF (useful for game rules)
   # c.prepend_pdf = "rules.pdf"
 
+  # the cards are landscape, so rotate them counterclockwise
+  # after rendering in Inkscape
+  # c.orientation = :landscape
+
   c.data_source = "data.ods"
 end
 ```

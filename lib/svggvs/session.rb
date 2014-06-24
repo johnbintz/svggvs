@@ -3,11 +3,12 @@ module SVGGVS
     attr_accessor :svg_source, :svg_merged_target, :individual_files_path, :on_card_finished
     attr_accessor :png_files_path, :png_export_width, :pdf_card_size, :pdf_dpi
     attr_accessor :pdf_target, :card_back, :card_size, :target, :post_read_data
-    attr_accessor :card_sheet_identifier, :prepend_pdf
+    attr_accessor :card_sheet_identifier, :prepend_pdf, :orientation
 
     def initialize
       @index = 0
       @card_sheet_identifier = "Card Data"
+      @orientation = :portrait
     end
 
     def configure

@@ -4,8 +4,8 @@ module SVGGVS
   class Target < SimpleDelegator
     attr_reader :target
 
-    def initialize(target)
-      @target = target
+    def initialize(target, options)
+      @target, @options = target, options
     end
 
     def __getobj__
@@ -20,8 +20,16 @@ module SVGGVS
       @injected_defs ||= {}
     end
 
+    def file_layers
+      @file_layers ||= css("g[inkscape|groupmode='layer']")
+    end
+
+    def child_visible_layers
+      @child_visible_layers ||= file_layers.find_all { |layer| layer['inkscape:label'].include?('(child visible)') }
+    end
+
     def inject!
-      css("g[inkscape|groupmode='layer']").each do |layer|
+      file_layers.each do |layer|
         if filename = layer['inkscape:label'][/inject (.*\.svg)/, 1]
           injected_sources[filename] ||= begin
                                             data = Nokogiri::XML(::File.read(filename))
@@ -39,30 +47,36 @@ module SVGGVS
     end
 
     def active_layers=(layers)
-      css("g[inkscape|groupmode='layer']").each do |layer|
+      file_layers.each do |layer|
+        layer['style'] = if layer['inkscape:label'].include?('(visible)')
+                           ''
+                         else
+                           'display:none'
+                         end
+      end
+
+      file_layers.each do |layer|
         if layers.include?(layer['inkscape:label'])
           layer['style'] = ''
 
           current_parent = layer.parent
 
-          while current_parent && current_parent.name == "g"
+          while current_parent && current_parent.name == "g" && current_parent['style'] != ''
             current_parent['style'] = ''
 
             current_parent = current_parent.parent
           end
-        else
-          layer['style'] = if layer['inkscape:label'].include?('(visible)')
-                             ''
-                           else
-                             'display:none'
-                           end
+
+          layers.delete(layer)
         end
+
+        break if layers.empty?
       end
 
       loop do
         any_changed = false
-        css("g[inkscape|groupmode='layer']").each do |layer|
-          if layer['inkscape:label'].include?('(child visible)') && layer['style'] != '' && layer.parent['style'] == ''
+        child_visible_layers.each do |layer|
+          if layer['style'] != '' && layer.parent['style'] == ''
             layer['style'] = ''
 
             any_changed = true
@@ -106,11 +120,15 @@ module SVGGVS
       end
     end
 
+    def cache
+      @options[:cache]
+    end
+
     # only uncloning text
     def unclone
-      css('svg|use').each do |clone|
-        if source = css(clone['xlink:href']).first
-          if source.name == 'flowRoot' || source.name == 'text'
+      file_layers.find_all { |layer| layer['style'] == '' }.each do |layer|
+        layer.css('svg|use').each do |clone|
+          if source = cache.is_clone_dup_type(clone['xlink:href'])
             new_group = clone.add_next_sibling("<g />").first
 
             clone.attributes.each do |key, attribute|

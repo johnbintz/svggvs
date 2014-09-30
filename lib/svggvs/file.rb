@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'delegate'
 
 module SVGGVS
   class File
@@ -58,12 +59,42 @@ module SVGGVS
       target.children.each(&:remove)
     end
 
+    class SVGCache < SimpleDelegator
+      def initialize(doc)
+        @doc = doc
+      end
+
+      def __getobj__
+        @doc
+      end
+
+      def is_clone_dup_type(href)
+        @is_clone_dup_type ||= {}
+
+        return @is_clone_dup_type[href] if @is_clone_dup_type[href] != nil
+
+        if source = css(href).first
+          if source.name == 'flowRoot' || source.name == 'text'
+            @is_clone_dup_type[href] = source
+          end
+        end
+
+        @is_clone_dup_type[href] ||= false
+
+        @is_clone_dup_type[href]
+      end
+    end
+
+    def svg_cache
+      @svg_cache ||= SVGCache.new(source)
+    end
+
     def with_new_target
       new_target = source.dup
       new_target[:id] = new_target[:id] + "_#{@instance}"
       new_target['inkscape:label'] = new_target['inkscape:label'] + "_#{@instance}"
 
-      target_obj = Target.new(new_target)
+      target_obj = Target.new(new_target, cache: svg_cache)
 
       reset_defs!
 

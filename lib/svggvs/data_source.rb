@@ -13,7 +13,7 @@ module SVGGVS
     def settings
       settings = {}
 
-      doc.each_with_pagename do |name, sheet|
+      sheets.each do |name, sheet|
         if name['SVGGVS Settings']
           sheet.each do |setting, value|
             settings[setting.spunderscore.to_sym] = value
@@ -24,8 +24,20 @@ module SVGGVS
       settings
     end
 
-    def each_card(card_sheet_identifier)
+    def sheets
+      return @sheets if @sheets
+
+      @sheets = []
+
       doc.each_with_pagename do |name, sheet|
+        @sheets << [ name, sheet.dup ]
+      end
+
+      @sheets
+    end
+
+    def each_card(card_sheet_identifier)
+      sheets.each do |name, sheet|
         if name[card_sheet_identifier]
           headers = sheet.row(1)
 

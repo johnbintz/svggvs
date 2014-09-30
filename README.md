@@ -83,6 +83,8 @@ Create a `Cardfile` in your working directory. It should look something like thi
 @session.configure do |c|
   # manipulate the data after reading from the spreadsheet
   # c.post_read_data = proc { |data|
+  #  data[:active_layers] << "My Cool Layer"
+  #  data[:active_layers] << /a regular expression/i
   #  data[:replacements]['Superpower Text'] << '!!'
   # }
 

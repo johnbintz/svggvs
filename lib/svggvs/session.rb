@@ -55,6 +55,27 @@ module SVGGVS
       card_finished!
     end
 
+    class ActiveLayerMatcher < SimpleDelegator
+      def initialize(layers)
+        @layers = layers
+      end
+
+      def __getobj__
+        @layers
+      end
+
+      def include?(name)
+        @layers.any? { |layer|
+          case layer
+          when Regexp
+            layer =~ name
+          else
+            layer == name
+          end
+        }
+      end
+    end
+
     def data_source=(source)
       data_source = DataSource.new(source)
 
@@ -68,7 +89,7 @@ module SVGGVS
 
           with_new_target do |target|
             target.inject!
-            target.active_layers = card[:active_layers]
+            target.active_layers = ActiveLayerMatcher.new(card[:active_layers])
             target.replacements = card[:replacements]
           end
         end
